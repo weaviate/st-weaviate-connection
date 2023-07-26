@@ -4,6 +4,8 @@ format:
 	
 	black ./tests && \
 	 isort ./tests
+	
+	black ./notebooks
 
 test:
 	pytest --cov=st_weaviate_connection --cov-report term-missing
