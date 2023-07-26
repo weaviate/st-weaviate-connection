@@ -1,6 +1,7 @@
 import io
 import sys
 
+import pandas as pd
 import pytest
 
 from st_weaviate_connection import WeaviateConnection
@@ -68,3 +69,25 @@ def test_query_with_additional_properties(weaviate_connection):
         "_additional.vector",
     }
     assert set(df["title"]) == {"Rugrats"}
+
+
+def test_query_builder(weaviate_connection):
+    client = weaviate_connection.client()
+    animaniacs_query_vector = [0.1, 0.2, 0.3, 0.4, 0.5]
+    results = (
+        client.query.get("TVShow", ["title", "creator"])
+        .with_limit(3)
+        .with_additional("distance")
+        .with_near_vector(
+            {
+                "vector": animaniacs_query_vector,
+            }
+        )
+        .do()
+    )
+
+    df = pd.json_normalize(results["data"]["Get"]["TVShow"])
+
+    assert df.shape == (3, 3)
+    assert set(df.columns) == {"title", "creator", "_additional.distance"}
+    assert df.iloc[0]["title"] == "Animaniacs"

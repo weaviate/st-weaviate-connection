@@ -42,3 +42,6 @@ class WeaviateConnection(ExperimentalBaseConnection["Client"]):
         results = _query(query, **kwargs)
 
         return self._convert_to_dataframe(results)
+
+    def client(self) -> Client:
+        return self._connect()
