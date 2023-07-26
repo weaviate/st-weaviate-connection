@@ -25,7 +25,7 @@ class WeaviateConnection(ExperimentalBaseConnection["Client"]):
     def _convert_to_dataframe(self, results) -> pd.DataFrame:
         class_name = list(results["data"]["Get"].keys())[0]
         data = results["data"]["Get"][class_name]
-        df = pd.DataFrame(data)
+        df = pd.json_normalize(data)
         return df
 
     def query(self, query: str, **kwargs) -> pd.DataFrame:

@@ -42,3 +42,29 @@ def test_malformed_query(weaviate_connection):
         weaviate_connection.query(query)
 
     assert "The GraphQL query returned an error" in str(exc_info.value)
+
+
+def test_query_with_additional_properties(weaviate_connection):
+    query = """
+    {
+    Get {
+        TVShow(limit: 3, bm25: {query: "Rugrats"}) {
+        title
+        creator
+        _additional {
+            score
+            vector
+        }
+        }
+    }
+    }
+    """
+    df = weaviate_connection.query(query)
+    assert df.shape == (1, 4)
+    assert set(df.columns) == {
+        "title",
+        "creator",
+        "_additional.score",
+        "_additional.vector",
+    }
+    assert set(df["title"]) == {"Rugrats"}
