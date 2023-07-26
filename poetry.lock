@@ -1432,6 +1432,25 @@ pytest = ">=4.6"
 testing = ["fields", "hunter", "process-tests", "pytest-xdist", "six", "virtualenv"]
 
 [[package]]
+name = "pytest-docker"
+version = "2.0.0"
+description = "Simple pytest fixtures for Docker and Docker Compose based tests"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "pytest-docker-2.0.0.tar.gz", hash = "sha256:3cc03a5b0f080807a49504197c16763811ba45863f26ae52c4411e499d4a2a86"},
+    {file = "pytest_docker-2.0.0-py3-none-any.whl", hash = "sha256:12c42c17de7cb26f166a578f5a415399e6f2b8bcb5c5321f054a5d4551a7ecc7"},
+]
+
+[package.dependencies]
+attrs = ">=19.2.0"
+pytest = ">=4.0,<8.0"
+
+[package.extras]
+docker-compose-v1 = ["docker-compose (>=1.27.3,<2.0)"]
+tests = ["pytest-pycodestyle (>=2.0.0,<3.0)", "pytest-pylint (>=0.14.1,<1.0)", "requests (>=2.22.0,<3.0)"]
+
+[[package]]
 name = "python-dateutil"
 version = "2.8.2"
 description = "Extensions to the standard Python datetime module"
@@ -2075,4 +2094,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "ed6226f85408fb3cc1bba8b2027cdc598cbc0c370ac72f8b80975ef8a82e32e2"
+content-hash = "2d8242aac96018ba6141d7274d5806f3bf9c90ca7d5441adb8ba5b33f13a8761"
