@@ -30,7 +30,14 @@ class WeaviateConnection(ExperimentalBaseConnection["Client"]):
 
     def query(self, query: str, **kwargs) -> pd.DataFrame:
         def _query(query: str, **kwargs):
-            return self._connect().query.raw(query)
+            results = self._connect().query.raw(query)
+            if "errors" in results:
+                error_message = (
+                    f"The GraphQL query returned an error: {results['errors']}"
+                )
+                raise Exception(error_message)
+            else:
+                return results
 
         results = _query(query, **kwargs)
 
