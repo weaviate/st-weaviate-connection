@@ -4,8 +4,11 @@ import requests
 
 def is_ready(url):
     """Check if the service is ready"""
-    response = requests.get(url)
-    return response.status_code == 200
+    try:
+        response = requests.get(url)
+        return response.status_code == 200
+    except requests.exceptions.ConnectionError:
+        return False
 
 
 @pytest.fixture(scope="session")
