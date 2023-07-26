@@ -3,6 +3,7 @@ from typing import Optional
 import pandas as pd
 import weaviate
 from streamlit.connections import ExperimentalBaseConnection
+from streamlit.runtime.caching import cache_data
 from weaviate.client import Client
 
 
@@ -28,7 +29,8 @@ class WeaviateConnection(ExperimentalBaseConnection["Client"]):
         df = pd.json_normalize(data)
         return df
 
-    def query(self, query: str, **kwargs) -> pd.DataFrame:
+    def query(self, query: str, ttl: int = 3600, **kwargs) -> pd.DataFrame:
+        @cache_data(ttl=ttl)
         def _query(query: str, **kwargs):
             results = self._connect().query.raw(query)
             if "errors" in results:
