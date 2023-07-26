@@ -1,0 +1,13 @@
+{
+    "folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../.venv/lib/python3.11/site-packages/weaviate"
+		},
+		{
+			"path": "../.venv/lib/python3.11/site-packages/streamlit"
+		}
+	]
+}
