@@ -15,11 +15,13 @@ class WeaviateConnection(ExperimentalBaseConnection["Client"]):
 
     def _connect(self, **kwargs) -> Client:
         auth_config = self._create_auth_config()
-        return Client(self.url, auth_client_secret=auth_config)
+        url = self.url or self._secrets.get("WEAVIATE_URL")
+        return Client(url, auth_client_secret=auth_config)
 
     def _create_auth_config(self) -> Optional[weaviate.AuthApiKey]:
-        if self.api_key is not None:
-            return weaviate.AuthApiKey(api_key=self.api_key)
+        api_key = self.api_key or self._secrets.get("WEAVIATE_API_KEY")
+        if api_key is not None:
+            return weaviate.AuthApiKey(api_key=api_key)
         else:
             return None
 
