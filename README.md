@@ -18,7 +18,7 @@ The Streamlit-Weaviate Connector enables developers to connect to a Weaviate dat
     )
  ```
 
-We built a Streamlit demo with this connector, called "Magic Chat", designed to search through [Magic The Gathering](https://magic.wizards.com/en) cards with various search options, such as BM25, Semantic Search, Hybrid Search and Generative Search. The live demo is accessible through [Streamlit Community Cloud](https://streamlit.io/cloud)
+We built a Streamlit demo with this connector, called "Magic Chat", designed to search through [Magic The Gathering](https://magic.wizards.com/en) cards with various search options, such as BM25, Semantic Search, Hybrid Search and Generative Search. The live demo is accessible through [Streamlit Community Cloud](https://weaviate-magic-chat.streamlit.app/)
 
 
 # 📚 Quickstart Guide
