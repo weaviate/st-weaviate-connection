@@ -8,9 +8,10 @@ readme = "README.md"
 packages = [{include = "st_weaviate_connection"}]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 weaviate-client = "^3.22.1"
 streamlit = "^1.25.0"
+python-dotenv = "^1.0.0"
 
 [tool.poetry.group.dev.dependencies]
 black = {extras = ["jupyter"], version = "^23.7.0"}
@@ -19,6 +20,8 @@ isort = "^5.12.0"
 pytest-cov = "^4.1.0"
 ipykernel = "^6.25.0"
 pytest-docker = "^2.0.0"
+wasabi = "^1.1.2"
+typer = "^0.9.0"
 
 [build-system]
 requires = ["poetry-core"]

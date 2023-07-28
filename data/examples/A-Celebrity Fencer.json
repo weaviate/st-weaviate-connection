@@ -1,0 +1,136 @@
+{
+    "object": "card",
+    "id": "6d9428ae-9c59-4cac-a29b-039a34cfdb6d",
+    "oracle_id": "60ae87f0-807f-47a9-b1b0-6cea4e68973d",
+    "multiverse_ids": [],
+    "arena_id": 84096,
+    "name": "A-Celebrity Fencer",
+    "lang": "en",
+    "released_at": "2022-04-29",
+    "uri": "https://api.scryfall.com/cards/6d9428ae-9c59-4cac-a29b-039a34cfdb6d",
+    "scryfall_uri": "https://scryfall.com/card/snc/A-7/a-celebrity-fencer?utm_source=api",
+    "layout": "normal",
+    "highres_image": false,
+    "image_status": "lowres",
+    "image_uris": {
+        "small": "https://cards.scryfall.io/small/front/6/d/6d9428ae-9c59-4cac-a29b-039a34cfdb6d.jpg?1681169362",
+        "normal": "https://cards.scryfall.io/normal/front/6/d/6d9428ae-9c59-4cac-a29b-039a34cfdb6d.jpg?1681169362",
+        "large": "https://cards.scryfall.io/large/front/6/d/6d9428ae-9c59-4cac-a29b-039a34cfdb6d.jpg?1681169362",
+        "png": "https://cards.scryfall.io/png/front/6/d/6d9428ae-9c59-4cac-a29b-039a34cfdb6d.png?1681169362",
+        "art_crop": "https://cards.scryfall.io/art_crop/front/6/d/6d9428ae-9c59-4cac-a29b-039a34cfdb6d.jpg?1681169362",
+        "border_crop": "https://cards.scryfall.io/border_crop/front/6/d/6d9428ae-9c59-4cac-a29b-039a34cfdb6d.jpg?1681169362"
+    },
+    "mana_cost": "{3}{W}",
+    "cmc": 4.0,
+    "type_line": "Creature \u2014 Elf Druid",
+    "oracle_text": "Alliance \u2014 Whenever another creature enters the battlefield under your control, put a +1/+1 counter on Celebrity Fencer.",
+    "power": "3",
+    "toughness": "3",
+    "colors": [
+        "W"
+    ],
+    "color_identity": [
+        "W"
+    ],
+    "keywords": [
+        "Alliance"
+    ],
+    "all_parts": [
+        {
+            "object": "related_card",
+            "id": "5afb5c5c-06e0-4b11-ad07-aef7be6e2cd4",
+            "component": "combo_piece",
+            "name": "Celebrity Fencer",
+            "type_line": "Creature \u2014 Elf Druid",
+            "uri": "https://api.scryfall.com/cards/5afb5c5c-06e0-4b11-ad07-aef7be6e2cd4"
+        },
+        {
+            "object": "related_card",
+            "id": "6d9428ae-9c59-4cac-a29b-039a34cfdb6d",
+            "component": "combo_piece",
+            "name": "A-Celebrity Fencer",
+            "type_line": "Creature \u2014 Elf Druid",
+            "uri": "https://api.scryfall.com/cards/6d9428ae-9c59-4cac-a29b-039a34cfdb6d"
+        }
+    ],
+    "legalities": {
+        "standard": "not_legal",
+        "future": "not_legal",
+        "historic": "legal",
+        "gladiator": "not_legal",
+        "pioneer": "not_legal",
+        "explorer": "not_legal",
+        "modern": "not_legal",
+        "legacy": "not_legal",
+        "pauper": "not_legal",
+        "vintage": "not_legal",
+        "penny": "not_legal",
+        "commander": "not_legal",
+        "oathbreaker": "not_legal",
+        "brawl": "not_legal",
+        "historicbrawl": "legal",
+        "alchemy": "legal",
+        "paupercommander": "not_legal",
+        "duel": "not_legal",
+        "oldschool": "not_legal",
+        "premodern": "not_legal",
+        "predh": "not_legal"
+    },
+    "games": [
+        "arena"
+    ],
+    "reserved": false,
+    "foil": false,
+    "nonfoil": true,
+    "finishes": [
+        "nonfoil"
+    ],
+    "oversized": false,
+    "promo": false,
+    "reprint": false,
+    "variation": false,
+    "set_id": "df837242-8c15-42e4-b049-c933a02dc501",
+    "set": "snc",
+    "set_name": "Streets of New Capenna",
+    "set_type": "expansion",
+    "set_uri": "https://api.scryfall.com/sets/df837242-8c15-42e4-b049-c933a02dc501",
+    "set_search_uri": "https://api.scryfall.com/cards/search?order=set&q=e%3Asnc&unique=prints",
+    "scryfall_set_uri": "https://scryfall.com/sets/snc?utm_source=api",
+    "rulings_uri": "https://api.scryfall.com/cards/6d9428ae-9c59-4cac-a29b-039a34cfdb6d/rulings",
+    "prints_search_uri": "https://api.scryfall.com/cards/search?order=released&q=oracleid%3A60ae87f0-807f-47a9-b1b0-6cea4e68973d&unique=prints",
+    "collector_number": "A-7",
+    "digital": true,
+    "rarity": "common",
+    "watermark": "cabaretti",
+    "flavor_text": "After a brief but memorable incident at her first performance, she was never heckled again.",
+    "card_back_id": "0aeebaf5-8c7d-4636-9e82-8c27447861f7",
+    "artist": "Inka Schulz",
+    "artist_ids": [
+        "3f93408e-c510-42a5-beef-9ddbc56d9056"
+    ],
+    "illustration_id": "f14ad197-9424-4da8-8dc6-cb582f611d87",
+    "border_color": "black",
+    "frame": "2015",
+    "security_stamp": "arena",
+    "full_art": false,
+    "textless": false,
+    "booster": false,
+    "story_spotlight": false,
+    "promo_types": [
+        "rebalanced",
+        "alchemy"
+    ],
+    "prices": {
+        "usd": null,
+        "usd_foil": null,
+        "usd_etched": null,
+        "eur": null,
+        "eur_foil": null,
+        "tix": null
+    },
+    "related_uris": {
+        "tcgplayer_infinite_articles": "https://infinite.tcgplayer.com/search?contentMode=article&game=magic&partner=scryfall&q=A-Celebrity+Fencer&utm_campaign=affiliate&utm_medium=api&utm_source=scryfall",
+        "tcgplayer_infinite_decks": "https://infinite.tcgplayer.com/search?contentMode=deck&game=magic&partner=scryfall&q=A-Celebrity+Fencer&utm_campaign=affiliate&utm_medium=api&utm_source=scryfall",
+        "edhrec": "https://edhrec.com/route/?cc=A-Celebrity+Fencer"
+    }
+}

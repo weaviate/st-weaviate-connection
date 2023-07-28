@@ -1,0 +1,186 @@
+{
+    "class": "Card",
+    "description": "Magic the Gathering cards",
+    "properties": [
+        {
+            "dataType": [
+                "text"
+            ],
+            "description": "The name of the card",
+            "name": "name",
+            "moduleConfig": {
+                "text2vec-openai": {
+                    "skip": false,
+                    "vectorizePropertyName": true
+                }
+            }
+        },
+        {
+            "dataType": [
+                "text"
+            ],
+            "description": "Card ID",
+            "name": "card_id",
+            "moduleConfig": {
+                "text2vec-openai": {
+                    "skip": false,
+                    "vectorizePropertyName": true
+                }
+            }
+        },
+        {
+            "dataType": [
+                "text"
+            ],
+            "description": "Image URL",
+            "name": "img",
+            "moduleConfig": {
+                "text2vec-openai": {
+                    "skip": true,
+                    "vectorizePropertyName": false
+                }
+            }
+        },
+        {
+            "dataType": [
+                "text"
+            ],
+            "description": "Mana cost",
+            "name": "mana_cost",
+            "moduleConfig": {
+                "text2vec-openai": {
+                    "skip": false,
+                    "vectorizePropertyName": true
+                }
+            }
+        },
+        {
+            "dataType": [
+                "text"
+            ],
+            "description": "Mana produced",
+            "name": "mana_produced",
+            "moduleConfig": {
+                "text2vec-openai": {
+                    "skip": false,
+                    "vectorizePropertyName": true
+                }
+            }
+        },
+        {
+            "dataType": [
+                "text"
+            ],
+            "description": "Card type",
+            "name": "type",
+            "moduleConfig": {
+                "text2vec-openai": {
+                    "skip": false,
+                    "vectorizePropertyName": true
+                }
+            }
+        },
+        {
+            "dataType": [
+                "text"
+            ],
+            "description": "Power",
+            "name": "power",
+            "moduleConfig": {
+                "text2vec-openai": {
+                    "skip": false,
+                    "vectorizePropertyName": true
+                }
+            }
+        },
+        {
+            "dataType": [
+                "text"
+            ],
+            "description": "Toughness",
+            "name": "toughness",
+            "moduleConfig": {
+                "text2vec-openai": {
+                    "skip": false,
+                    "vectorizePropertyName": true
+                }
+            }
+        },
+        {
+            "dataType": [
+                "text"
+            ],
+            "description": "Card Color",
+            "name": "color",
+            "moduleConfig": {
+                "text2vec-openai": {
+                    "skip": false,
+                    "vectorizePropertyName": true
+                }
+            }
+        },
+        {
+            "dataType": [
+                "text"
+            ],
+            "description": "Card keywords",
+            "name": "keyword",
+            "moduleConfig": {
+                "text2vec-openai": {
+                    "skip": false,
+                    "vectorizePropertyName": true
+                }
+            }
+        },
+        {
+            "dataType": [
+                "text"
+            ],
+            "description": "Cardset name",
+            "name": "set",
+            "moduleConfig": {
+                "text2vec-openai": {
+                    "skip": false,
+                    "vectorizePropertyName": true
+                }
+            }
+        },
+        {
+            "dataType": [
+                "text"
+            ],
+            "description": "Card rarity",
+            "name": "rarity",
+            "moduleConfig": {
+                "text2vec-openai": {
+                    "skip": false,
+                    "vectorizePropertyName": true
+                }
+            }
+        },
+        {
+            "dataType": [
+                "text"
+            ],
+            "description": "Card description",
+            "name": "description",
+            "moduleConfig": {
+                "text2vec-openai": {
+                    "skip": false,
+                    "vectorizePropertyName": true
+                }
+            }
+        }
+    ],
+    "moduleConfig": {
+        "generative-openai": {
+            "model": "gpt-3.5-turbo"
+        },
+        "text2vec-openai": {
+            "model": "ada",
+            "modelVersion": "002",
+            "type": "text"
+        }
+    },
+    "vectorizer": "text2vec-openai"
+}
