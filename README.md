@@ -24,12 +24,10 @@ We built a Streamlit demo with this connector, called "Magic Chat", designed to 
 # 📚 Quickstart Guide
 ## 🔧 Installation
 
-This project uses `poetry` for dependency management. You can find more details more `poetry` in [its documentation](https://python-poetry.org/docs/dependency-specification/).
+This project uses `poetry` for dependency management. You can find more details about `poetry` in [its documentation](https://python-poetry.org/docs/dependency-specification/).
 
 1. **Create a new Python virtual environment:**
-- Ensure you have python `>=3.10.0` installed
-- ```python3 -m venv env```
-- ```source env/bin/activate```
+- Ensure you have python `>=3.11.0` installed
 - ```pip install poetry```
 
 2. **Install the project:**
