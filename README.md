@@ -10,7 +10,7 @@ It delivers a Streamlit connector for the open-source vector database, [Weaviate
 The Streamlit-Weaviate Connector enables developers to connect to a Weaviate database with the following Python code:
 
  ```python 
-    conn = st.experimental_connection(
+    conn = st.connection(
         "weaviate",
         type=WeaviateConnection,
         url=os.getenv("WEAVIATE_URL"),
@@ -54,7 +54,7 @@ To set up your Weaviate cluster, follow either of these methods:
 - **OPTION 2** Use Docker-Compose to setup a cluster locally [Weaviate Docker Guide](https://weaviate.io/developers/weaviate/installation/docker-compose)
 
 
-All connector functionality can be found in the [`connection.py`](./st_weaviate_connection/connection.py) python file. Documentation about `st.experimental_connection` can be found [here](https://docs.streamlit.io/library/api-reference/connections/st.experimental_connection).
+All connector functionality can be found in the [`connection.py`](./st_weaviate_connection/connection.py) python file. Documentation about `st.connection` can be found [here](https://docs.streamlit.io/library/api-reference/connections/st.experimental_connection).
 
 
 ## 💖 Open Source Contribution
