@@ -1,6 +1,7 @@
 # Streamlit-Weaviate Connection
 
 [![Weaviate](https://img.shields.io/static/v1?label=Built%20with&message=Weaviate&color=green&style=flat-square)](https://weaviate.io/) [![Weaviate](https://img.shields.io/static/v1?label=%20made%20with%20%E2%9D%A4%20for&message=Streamlit&color=red&style=flat-square)](https://streamlit.io/)
+
 This project provides a Streamlit connector for the open-source vector database, [Weaviate](https://weaviate.io/).
 ![Weaviate Connection demo app](WeaviateDemoApp.png)
 
