@@ -1,6 +1,6 @@
 # Streamlit-Weaviate Connection
 
-![Weaviate Connection demo app](WeaviateDemo.png)
+![Weaviate Connection demo app](WeaviateDemoApp.png)
 
 [![Weaviate](https://img.shields.io/static/v1?label=Built%20with&message=Weaviate&color=green&style=flat-square)](https://weaviate.io/) [![Weaviate](https://img.shields.io/static/v1?label=%20made%20with%20%E2%9D%A4%20for&message=Streamlit&color=red&style=flat-square)](https://streamlit.io/)
 
