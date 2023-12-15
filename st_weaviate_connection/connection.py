@@ -2,12 +2,12 @@ from typing import Optional
 
 import pandas as pd
 import weaviate
-from streamlit.connections import ExperimentalBaseConnection
+from streamlit.connections import BaseConnection
 from streamlit.runtime.caching import cache_data
 from weaviate.client import Client
 
 
-class WeaviateConnection(ExperimentalBaseConnection["Client"]):
+class WeaviateConnection(BaseConnection["Client"]):
     def __init__(
         self,
         connection_name: str,
