@@ -4,10 +4,11 @@ import pandas as pd
 import weaviate
 from streamlit.connections import BaseConnection
 from streamlit.runtime.caching import cache_data
-from weaviate.client import Client
+from weaviate.client import WeaviateClient
+from weaviate.collections.classes.internal import _RawGQLReturn
 
 
-class WeaviateConnection(BaseConnection["Client"]):
+class WeaviateConnection(BaseConnection["WeaviateClient"]):
     def __init__(
         self,
         connection_name: str,
@@ -21,13 +22,13 @@ class WeaviateConnection(BaseConnection["Client"]):
         self.additional_headers = additional_headers
         super().__init__(connection_name, **kwargs)
 
-    def _connect(self, **kwargs) -> Client:
+    def _connect(self, **kwargs) -> WeaviateClient:
         auth_config = self._create_auth_config()
         url = self.url or self._secrets.get("WEAVIATE_URL")
-        return Client(
-            url,
-            auth_client_secret=auth_config,
-            additional_headers=self.additional_headers,
+        return weaviate.connect_to_weaviate_cloud(
+            cluster_url=url,
+            auth_credentials=auth_config,
+            headers=self.additional_headers,
         )
 
     def _create_auth_config(self) -> Optional[weaviate.AuthApiKey]:
@@ -37,16 +38,16 @@ class WeaviateConnection(BaseConnection["Client"]):
         else:
             return None
 
-    def _convert_to_dataframe(self, results) -> pd.DataFrame:
-        class_name = list(results["data"]["Get"].keys())[0]
-        data = results["data"]["Get"][class_name]
+    def _convert_to_dataframe(self, results: _RawGQLReturn) -> pd.DataFrame:
+        class_name = list(results.get.keys())[0]
+        data = results.get[class_name]
         df = pd.json_normalize(data)
         return df
 
-    def query(self, query: str, ttl: int = 3600, **kwargs) -> pd.DataFrame:
+    def query(self, query: str, ttl: int = 3600) -> pd.DataFrame:
         @cache_data(ttl=ttl)
-        def _query(query: str, **kwargs):
-            results = self._connect().query.raw(query)
+        def _query(query: str):
+            results = self._connect().graphql_raw_query(query)
             if "errors" in results:
                 error_message = (
                     f"The GraphQL query returned an error: {results['errors']}"
@@ -55,9 +56,9 @@ class WeaviateConnection(BaseConnection["Client"]):
             else:
                 return results
 
-        results = _query(query, **kwargs)
+        results = _query(query)
 
         return self._convert_to_dataframe(results)
 
-    def client(self) -> Client:
+    def client(self) -> WeaviateClient:
         return self._connect()
