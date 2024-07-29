@@ -11,9 +11,7 @@ from weaviate.collections.classes.internal import _RawGQLReturn
 from weaviate.collections.classes.filters import (
     _Filters,
 )
-from weaviate.collections.classes.grpc import (
-    TargetVectorJoinType
-)
+from weaviate.collections.classes.grpc import TargetVectorJoinType
 from weaviate.collections.classes.data import DataObject
 from weaviate.collections.classes.types import WeaviateProperties
 
@@ -89,7 +87,7 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
         df = pd.DataFrame(data)
         return df
 
-    def hybrid_query(
+    def hybrid_search(
         self,
         collection_name: str,
         query: str,
@@ -97,7 +95,6 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
         filters: Optional[_Filters] = None,
         target_vectors: Optional[TargetVectorJoinType] = None,
         query_properties: Optional[List[str]] = None,
-        cache_ttl: int = 3600,
     ) -> pd.DataFrame:
         """
         Query a Weaviate collection using a simplified hybrid query.
@@ -120,14 +117,11 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
             The properties to query in the keyword search part of the query.
             If not provided, all properties are queried.
             Default: None.
-        cache_ttl : int, optional
-            The Streamlit time-to-live for the cached data. Default: 3600.
         """
 
         collection = self._client.collections.get(name=collection_name)
 
-        @cache_data(ttl=cache_ttl)
-        def _hybrid_query(
+        def _hybrid_search(
             query: str,
             limit: int = 10,
             filters: Optional[_Filters] = None,
@@ -143,19 +137,19 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
             )
             return response
 
-        response = _hybrid_query(
+        response = _hybrid_search(
             query, limit, filters, target_vectors, query_properties
         )
+
         return _response_objects_to_df(response.objects)
 
-    def near_text_query(
+    def near_text_search(
         self,
         collection_name: str,
         query: str,
         limit: int = 10,
         filters: Optional[_Filters] = None,
         target_vectors: Optional[TargetVectorJoinType] = None,
-        cache_ttl: int = 3600,
     ) -> pd.DataFrame:
         """
         Query a Weaviate collection using a simplified semantic (near_text) query.
@@ -172,14 +166,11 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
             The filters to apply to the query. Default: None.
         target_vectors : string, List[string], List[TargetVectors], optional
             The target vector(s) to search. Only required if the target collection uses named vectors. Default: None.
-        cache_ttl : int, optional
-            The Streamlit time-to-live for the cached data. Default: 3600.
         """
 
         collection = self._client.collections.get(name=collection_name)
 
-        @cache_data(ttl=cache_ttl)
-        def _near_text_query(
+        def _near_text_search(
             query: str,
             limit: int = 10,
             filters: Optional[_Filters] = None,
@@ -190,7 +181,8 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
             )
             return response
 
-        response = _near_text_query(query, limit, filters, target_vectors)
+        response = _near_text_search(query, limit, filters, target_vectors)
+
         return _response_objects_to_df(response.objects)
 
     def graphql_query(self, query: str, cache_ttl: int = 3600) -> pd.DataFrame:
@@ -209,9 +201,7 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
         def _graphql_query(_client: WeaviateClient, query: str):
             results = _client.graphql_raw_query(query)
             if results.errors is not None:
-                error_message = (
-                    f"The GraphQL query returned an error: {results.errors}"
-                )
+                error_message = f"The GraphQL query returned an error: {results.errors}"
                 raise Exception(error_message)
             else:
                 return results
@@ -227,6 +217,7 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
         """
 
         self._connect()
+
         return self._client
 
     def close(self) -> None:
@@ -235,4 +226,5 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
         """
 
         self._client.close()
+
         return None

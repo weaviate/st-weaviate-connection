@@ -1,22 +1,32 @@
-from st_weaviate_connection import WeaviateConnection
+from st_weaviate_connection import WeaviateConnection, WeaviateFilter
 import streamlit as st
 import os
 
 openai_apikey = os.environ["OPENAI_API_KEY"]
+weaviate_url = os.environ["WEAVIATE_URL"]
+weaviate_apikey = os.environ["WEAVIATE_API_KEY"]
 
 conn = st.connection(
     "weaviate",
     type=WeaviateConnection,
-    url=os.getenv("WEAVIATE_URL"),
-    api_key=os.getenv("WEAVIATE_API_KEY"),
+    url=weaviate_url,
+    api_key=weaviate_apikey,
     additional_headers={"X-OpenAI-Api-Key": openai_apikey},
 )
 
-df = conn.hybrid_query(collection_name="Movie", query="Superhero")
+df = conn.hybrid_search(collection_name="Movie", query="Superhero")
 
 print(df)
 
-df = conn.near_text_query(collection_name="Movie", query="romanzzz filmstuff")
+df = conn.near_text_search(collection_name="Movie", query="romanzzz filmstuff")
+
+print(df)
+
+df = conn.hybrid_search(
+    collection_name="Movie",
+    query="Superhero",
+    filters=WeaviateFilter.by_property("vote_average").greater_than(8)
+)
 
 print(df)
 
