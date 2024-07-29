@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "st-weaviate-connection"
-version = "0.0.1"
+version = "0.1.0"
 description = "A python package that provides a custom streamlit connection to query data from weaviate, the AI native vector database"
 authors = ["hsm207 <hsm207@users.noreply.github.com>"]
 license = "BSD-3-Clause license"
@@ -10,7 +10,7 @@ packages = [{include = "st_weaviate_connection"}]
 [tool.poetry.dependencies]
 python = "^3.11"
 weaviate-client = "^4.7.1"
-streamlit = "^1.25.0"
+streamlit = "^1.37.0"
 
 [tool.poetry.group.dev.dependencies]
 black = {extras = ["jupyter"], version = "^23.7.0"}

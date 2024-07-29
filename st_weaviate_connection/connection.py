@@ -5,12 +5,14 @@ import weaviate
 from streamlit.connections import BaseConnection
 from streamlit.runtime.caching import cache_data
 from weaviate.client import WeaviateClient
+from weaviate.auth import _APIKey
+from weaviate.classes.init import Auth
 from weaviate.collections.classes.internal import _RawGQLReturn
 from weaviate.collections.classes.filters import (
     _Filters,
 )
 from weaviate.collections.classes.grpc import (
-    TargetVectorJoinType,
+    TargetVectorJoinType
 )
 from weaviate.collections.classes.data import DataObject
 from weaviate.collections.classes.types import WeaviateProperties
@@ -58,6 +60,7 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
             e.g.: "X-<PROVIDER>-Api-Key": "<API_KEY>".
             Default: None.
         """
+
         self.url = url
         self.api_key = api_key
         self.additional_headers = additional_headers
@@ -69,17 +72,21 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
         )
         super().__init__(connection_name, **kwargs)
 
-    def _create_auth_config(self) -> Optional[weaviate.AuthApiKey]:
+    def _connect(self) -> WeaviateClient:
+        self._client.connect()
+        return self._client
+
+    def _create_auth_config(self) -> Optional[_APIKey]:
         api_key = self.api_key or self._secrets.get("WEAVIATE_API_KEY")
         if api_key is not None:
-            return weaviate.AuthApiKey(api_key=api_key)
+            return Auth.api_key(api_key=api_key)
         else:
             return None
 
     def _gql_to_dataframe(self, results: _RawGQLReturn) -> pd.DataFrame:
-        class_name = list(results.get.keys())[0]
-        data = results.get[class_name]
-        df = pd.json_normalize(data)
+        collection_name = list(results.get.keys())[0]
+        data = results.get[collection_name]
+        df = pd.DataFrame(data)
         return df
 
     def hybrid_query(
@@ -87,8 +94,9 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
         collection_name: str,
         query: str,
         limit: int = 10,
-        target_vectors: Optional[TargetVectorJoinType] = None,
         filters: Optional[_Filters] = None,
+        target_vectors: Optional[TargetVectorJoinType] = None,
+        query_properties: Optional[List[str]] = None,
         cache_ttl: int = 3600,
     ) -> pd.DataFrame:
         """
@@ -102,28 +110,42 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
             The query to search for.
         limit : int, optional
             The number of results to return. Default: 10.
-        target_vectors : string, List[string], List[TargetVectors], optional
-            The target vector(s) to search. Only required if the target collection uses named vectors. Default: None.
         filters : Filter, optional
             The filters to apply to the query. Default: None.
+        target_vectors : string, List[string], List[TargetVectors], optional
+            The target vector(s) to search in the semantic search part of the query.
+            Only required if the target collection uses named vectors.
+            Default: None.
+        query_properties : List[str], optional
+            The properties to query in the keyword search part of the query.
+            If not provided, all properties are queried.
+            Default: None.
         cache_ttl : int, optional
             The Streamlit time-to-live for the cached data. Default: 3600.
         """
+
         collection = self._client.collections.get(name=collection_name)
 
         @cache_data(ttl=cache_ttl)
         def _hybrid_query(
             query: str,
             limit: int = 10,
-            target_vectors: Optional[TargetVectorJoinType] = None,
             filters: Optional[_Filters] = None,
+            target_vectors: Optional[TargetVectorJoinType] = None,
+            query_properties: Optional[List[str]] = None,
         ):
             response = collection.query.hybrid(
-                query=query, limit=limit, target_vector=target_vectors, filters=filters
+                query=query,
+                limit=limit,
+                filters=filters,
+                target_vector=target_vectors,
+                query_properties=query_properties,
             )
             return response
 
-        response = _hybrid_query(query, limit, target_vectors, filters)
+        response = _hybrid_query(
+            query, limit, filters, target_vectors, query_properties
+        )
         return _response_objects_to_df(response.objects)
 
     def near_text_query(
@@ -131,8 +153,8 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
         collection_name: str,
         query: str,
         limit: int = 10,
-        target_vectors: Optional[TargetVectorJoinType] = None,
         filters: Optional[_Filters] = None,
+        target_vectors: Optional[TargetVectorJoinType] = None,
         cache_ttl: int = 3600,
     ) -> pd.DataFrame:
         """
@@ -146,28 +168,29 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
             The query to search for.
         limit : int, optional
             The number of results to return. Default: 10.
-        target_vectors : string, List[string], List[TargetVectors], optional
-            The target vector(s) to search. Only required if the target collection uses named vectors. Default: None.
         filters : Filter, optional
             The filters to apply to the query. Default: None.
+        target_vectors : string, List[string], List[TargetVectors], optional
+            The target vector(s) to search. Only required if the target collection uses named vectors. Default: None.
         cache_ttl : int, optional
             The Streamlit time-to-live for the cached data. Default: 3600.
         """
+
         collection = self._client.collections.get(name=collection_name)
 
         @cache_data(ttl=cache_ttl)
         def _near_text_query(
             query: str,
             limit: int = 10,
-            target_vectors: Optional[TargetVectorJoinType] = None,
             filters: Optional[_Filters] = None,
+            target_vectors: Optional[TargetVectorJoinType] = None,
         ):
             response = collection.query.hybrid(
-                query=query, limit=limit, target_vector=target_vectors, filters=filters
+                query=query, limit=limit, filters=filters, target_vector=target_vectors
             )
             return response
 
-        response = _near_text_query(query, limit, target_vectors, filters)
+        response = _near_text_query(query, limit, filters, target_vectors)
         return _response_objects_to_df(response.objects)
 
     def graphql_query(self, query: str, cache_ttl: int = 3600) -> pd.DataFrame:
@@ -183,11 +206,11 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
         """
 
         @cache_data(ttl=cache_ttl)
-        def _graphql_query(client: WeaviateClient, query: str):
-            results = self._connect().graphql_raw_query(query)
-            if "errors" in results:
+        def _graphql_query(_client: WeaviateClient, query: str):
+            results = _client.graphql_raw_query(query)
+            if results.errors is not None:
                 error_message = (
-                    f"The GraphQL query returned an error: {results['errors']}"
+                    f"The GraphQL query returned an error: {results.errors}"
                 )
                 raise Exception(error_message)
             else:
@@ -202,5 +225,14 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
         """
         Connect to Weaviate and return the client object for use in queries.
         """
+
         self._connect()
         return self._client
+
+    def close(self) -> None:
+        """
+        Close the connection to Weaviate.
+        """
+
+        self._client.close()
+        return None
