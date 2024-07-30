@@ -16,7 +16,7 @@ from weaviate.collections.classes.data import DataObject
 from weaviate.collections.classes.types import WeaviateProperties
 
 
-def _response_objects_to_df(
+def weaviate_response_objects_to_df(
     objects: List[DataObject[WeaviateProperties, None]]
 ) -> pd.DataFrame:
     """
@@ -37,7 +37,7 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
     def __init__(
         self,
         connection_name: str,
-        url: str,
+        url: str=None,
         api_key=None,
         additional_headers=None,
         **kwargs,
@@ -49,8 +49,10 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
         ----------
         connection_name : str
             The name of the connection.
-        url : str
-            The URL of the Weaviate cluster.
+        url : str, optional
+            The URL of a Weaviate Cloud cluster.
+            Provide this or the `weaviate_client` parameter.
+            Default: None.
         api_key : str, optional
             The Weaviate API key to use for authentication. Default: None.
         additional_headers : dict, optional
@@ -62,12 +64,19 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
         self.url = url
         self.api_key = api_key
         self.additional_headers = additional_headers
-        self._client = weaviate.connect_to_weaviate_cloud(
-            cluster_url=url,
-            auth_credentials=self._create_auth_config(),
-            headers=self.additional_headers,
-            skip_init_checks=True,
-        )
+        if url == "localhost":
+            self._client = weaviate.connect_to_local(
+                auth_credentials=self._create_auth_config(),
+                headers=self.additional_headers,
+                skip_init_checks=True,
+            )
+        else:
+            self._client = weaviate.connect_to_weaviate_cloud(
+                cluster_url=url,
+                auth_credentials=self._create_auth_config(),
+                headers=self.additional_headers,
+                skip_init_checks=True,
+            )
         super().__init__(connection_name, **kwargs)
 
     def _connect(self) -> WeaviateClient:
@@ -95,6 +104,7 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
         filters: Optional[_Filters] = None,
         target_vectors: Optional[TargetVectorJoinType] = None,
         query_properties: Optional[List[str]] = None,
+        alpha: float = 0.7,
     ) -> pd.DataFrame:
         """
         Query a Weaviate collection using a simplified hybrid query.
@@ -106,17 +116,21 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
         query : str
             The query to search for.
         limit : int, optional
-            The number of results to return. Default: 10.
+            The number of results to return.
+            Default: 10.
         filters : Filter, optional
-            The filters to apply to the query. Default: None.
+            The filters to apply to the query.
+            Import the `WeaviateFilter` class from `st_weaviate_connection` to use this argument.
         target_vectors : string, List[string], List[TargetVectors], optional
             The target vector(s) to search in the semantic search part of the query.
             Only required if the target collection uses named vectors.
-            Default: None.
+            Optionally, import the `WeaviateTargetVectors` class from `st_weaviate_connection` to use this argument.
         query_properties : List[str], optional
             The properties to query in the keyword search part of the query.
             If not provided, all properties are queried.
-            Default: None.
+        alpha: float, optional
+            The weight of the semantic search part of the query. (alpha=1 is a semantic search, alpha=0 is a keyword search).
+            If not provided, the Weaviate server default value is used.
         """
 
         collection = self._client.collections.get(name=collection_name)
@@ -127,6 +141,7 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
             filters: Optional[_Filters] = None,
             target_vectors: Optional[TargetVectorJoinType] = None,
             query_properties: Optional[List[str]] = None,
+            alpha: float = None,
         ):
             response = collection.query.hybrid(
                 query=query,
@@ -134,56 +149,15 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
                 filters=filters,
                 target_vector=target_vectors,
                 query_properties=query_properties,
+                alpha=alpha,
             )
             return response
 
         response = _hybrid_search(
-            query, limit, filters, target_vectors, query_properties
+            query, limit, filters, target_vectors, query_properties, alpha
         )
 
-        return _response_objects_to_df(response.objects)
-
-    def near_text_search(
-        self,
-        collection_name: str,
-        query: str,
-        limit: int = 10,
-        filters: Optional[_Filters] = None,
-        target_vectors: Optional[TargetVectorJoinType] = None,
-    ) -> pd.DataFrame:
-        """
-        Query a Weaviate collection using a simplified semantic (near_text) query.
-
-        Parameters
-        ----------
-        collection_name : str
-            The name of the collection to query.
-        query : str
-            The query to search for.
-        limit : int, optional
-            The number of results to return. Default: 10.
-        filters : Filter, optional
-            The filters to apply to the query. Default: None.
-        target_vectors : string, List[string], List[TargetVectors], optional
-            The target vector(s) to search. Only required if the target collection uses named vectors. Default: None.
-        """
-
-        collection = self._client.collections.get(name=collection_name)
-
-        def _near_text_search(
-            query: str,
-            limit: int = 10,
-            filters: Optional[_Filters] = None,
-            target_vectors: Optional[TargetVectorJoinType] = None,
-        ):
-            response = collection.query.hybrid(
-                query=query, limit=limit, filters=filters, target_vector=target_vectors
-            )
-            return response
-
-        response = _near_text_search(query, limit, filters, target_vectors)
-
-        return _response_objects_to_df(response.objects)
+        return weaviate_response_objects_to_df(response.objects)
 
     def graphql_query(self, query: str, cache_ttl: int = 3600) -> pd.DataFrame:
         """
