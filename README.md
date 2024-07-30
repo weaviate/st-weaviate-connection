@@ -147,6 +147,13 @@ WEAVIATE_API_KEY=<YOUR WEAVIATE CLOUD INSTANCE API KEY>
 
 All connector functionality can be found in the [`connection.py`](./st_weaviate_connection/connection.py) python file. Documentation about `st.connection` can be found [here](https://docs.streamlit.io/library/api-reference/connections/st.experimental_connection).
 
+## Demo app(s)
+
+### Magic Chat
+
+Magic Chat searches through Magic The Gathering cards with various search options, such as keyword, semantic and hybrid, and performs retrieval-augmented. The live demo is accessible through [Streamlit Community Cloud](https://weaviate-magic-chat.streamlit.app/).
+
+It was built using a previous version (0.0.1) of the Weaviate connector, and the code can be found in the [this repository](https://github.com/thomashacker/weaviate-magic-chat-demo/tree/main).
 
 ## 💖 Open Source Contribution
 
