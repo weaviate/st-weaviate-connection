@@ -1,287 +1,207 @@
-from st_weaviate_connection import WeaviateConnection, WeaviateFilter
 import streamlit as st
 import time
 import sys
 import os
 import base64
+from st_weaviate_connection import WeaviateConnection, WeaviateFilter
 
 # Constants
 ENV_VARS = ["WEAVIATE_URL", "WEAVIATE_API_KEY", "COHERE_API_KEY"]
 NUM_IMAGES_PER_ROW = 5
 SEARCH_LIMIT = 10
 
+# Search Mode descriptions
+SEARCH_MODES = {
+    "Keyword": ("Keyword search (BM25, in case of Weaviate) ranks documents based on their relevance to a given query, factoring in both the frequency of keywords and the length of the document.", 0),
+    "Semantic": ("Semantic (vector) search ranks results based on their similarity to your search query. Instead of just matching keywords, it understands the context and meaning behind your search, offering more relevant and nuanced results.", 1),
+    "Hybrid": ("Hybrid search combines vector and BM25 searches to offer best-of-both-worlds search results. It leverages the precision of BM25's keyword-based ranking with vector search's ability to understand context and semantic meaning. Providing results that are both directly relevant to the query and contextually related.", 0.7),
+}
 
 # Functions
-def get_env_vars(env_vars: list) -> dict:
-    """Retrieve environment variables
-    @parameter env_vars : list - List containing keys of environment variables
-    @returns dict - A dictionary of environment variables
-    """
-
-    env_vars = {}
-    for var in ENV_VARS:
-        value = os.environ.get(var, "")
-        if value == "":
+def get_env_vars(env_vars):
+    """Retrieve environment variables"""
+    env_vars = {var: os.environ.get(var, "") for var in env_vars}
+    for var, value in env_vars.items():
+        if not value:
             st.error(f"{var} not set", icon="🚨")
             sys.exit(f"{var} not set")
-        env_vars[var] = value
-
     return env_vars
 
-
-def display_chat_messages() -> None:
-    """Print message history
-    @returns None
-    """
+def display_chat_messages():
+    """Print message history"""
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
             if "images" in message:
                 for i in range(0, len(message["images"]), NUM_IMAGES_PER_ROW):
                     cols = st.columns(NUM_IMAGES_PER_ROW)
-                    for j in range(NUM_IMAGES_PER_ROW):
+                    for j, col in enumerate(cols):
                         if i + j < len(message["images"]):
-                            cols[j].image(message["images"][i + j], width=200)
+                            col.image(message["images"][i + j], width=200)
 
-
-def base64_to_image(base64_str: str) -> str:
-    """Convert base64 string to image
-    @parameter base64_str : str - Base64 string
-    @returns str - Image URL
-    """
+def base64_to_image(base64_str):
+    """Convert base64 string to image"""
     return f"data:image/png;base64,{base64_str}"
 
-
-# Environment variables
-env_vars = get_env_vars(ENV_VARS)
-url = env_vars["WEAVIATE_URL"]
-api_key = env_vars["WEAVIATE_API_KEY"]
-cohere_key = env_vars["COHERE_API_KEY"]
-
-# Check keys
-if url == "" or api_key == "" or cohere_key == "":
-    st.error(f"Environment variables not set", icon="🚨")
-    sys.exit("Environment variables not set")
-
-# Title
-st.title("🎥🍿 Movie Magic")
-
-# Connection to Weaviate thorugh Connector
-conn = st.connection(
-    "weaviate",
-    type=WeaviateConnection,
-    url=url,
-    api_key=api_key,
-    additional_headers={"X-Cohere-Api-Key": cohere_key},
-)
-
-with st.sidebar:
-    st.title("🎥🍿 Movie Magic")
-    st.subheader("The RAG Recommender")
-    st.markdown(
-        """<DESCRIPTION GOES HERE>"""
-    )
-    st.header("Settings")
-
-# Search Mode descriptions
-mode_descriptions = {
-    "Keyword": [
-        "Keyword search (BM25, in case of Weaviate) ranks documents based on their relevance to a given query, factoring in both the frequency of keywords and the length of the document.",
-        0, # alpha value
-    ],
-    "Semantic": [
-        "Semantic (vector) search ranks results based on their similarity to your search query. Instead of just matching keywords, it understands the context and meaning behind your search, offering more relevant and nuanced results.",
-        1, # alpha value
-    ],
-    "Hybrid": [
-        "Hybrid search combines vector and BM25 searches to offer best-of-both-worlds search results. It leverages the precision of BM25's keyword-based ranking with vector search's ability to understand context and semantic meaning. Providing results that are both directly relevant to the query and contextually related.",
-        0.7, # alpha value
-    ],
-}
-
-# Information
-with st.expander("Built with Weaviate"):
-    st.subheader("<TODO>")
-    st.markdown(
-        """
-
-        """
-    )
-    st.subheader("Data")
-    st.markdown(
-        """The database contains over 4000+ movies from TMDB:
-        - Name, Type, Keywords
-        - Mana cost, Mana produced, Color
-        - Power, Toughness, Rarity
-        - Set name and Card description """
-    )
-    st.subheader("How the demo works")
-
-
-col1, col2, col3 = st.columns([0.2, 0.5, 0.2])
-
-# col2.image("./img/anim.gif")
-
-# User Configuration Sidebar
-with st.sidebar:
-    mode = st.radio(
-        "Search Mode", options=["Keyword", "Semantic", "Hybrid"], index=2
-    )
-    year_range = st.slider(
-        label="Year range",
-        min_value=1950,
-        max_value=2024,
-        value=(1990, 2024),
-    )
-    st.info(mode_descriptions[mode][0])
-
-    st.success("Connected to Weaviate", icon="💚")
-
-st.divider()
-
-# Initialize chat history
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-    st.session_state.greetings = False
-
-# Display chat messages from history on app rerun
-display_chat_messages()
-
-# Greet user
-if not st.session_state.greetings:
-    with st.chat_message("assistant"):
-        intro = "<GREETINGS>"
-        st.markdown(intro)
-        # Add assistant response to chat history
-        st.session_state.messages.append({"role": "assistant", "content": intro})
-        st.session_state.greetings = True
-
-# Example prompts
-example_prompts = [
-    "A movie night with friends",
-    "Vampires cards with flying ability",
-    "Blue and green colored sorcery cards",
-    "White card with protection from black",
-    "The famous 'Black Lotus' card",
-    "Wizard card with Vigiliance ability",
-]
-
-example_prompts_help = [
-    "Look for a specific card effect",
-    "Search for card type: 'Vampires', card color: 'black', and ability: 'flying'",
-    "Color cards and card type",
-    "Specifc card effect to another mana color",
-    "Search for card names",
-    "Search for card types with specific abilities",
-]
-
-button_cols = st.columns(3)
-button_cols_2 = st.columns(3)
-
-button_pressed = ""
-
-if button_cols[0].button(example_prompts[0], help=example_prompts_help[0]):
-    button_pressed = example_prompts[0]
-elif button_cols[1].button(example_prompts[1], help=example_prompts_help[1]):
-    button_pressed = example_prompts[1]
-elif button_cols[2].button(example_prompts[2], help=example_prompts_help[2]):
-    button_pressed = example_prompts[2]
-
-elif button_cols_2[0].button(example_prompts[3], help=example_prompts_help[3]):
-    button_pressed = example_prompts[3]
-elif button_cols_2[1].button(example_prompts[4], help=example_prompts_help[4]):
-    button_pressed = example_prompts[4]
-elif button_cols_2[2].button(example_prompts[5], help=example_prompts_help[5]):
-    button_pressed = example_prompts[5]
-
-
 def clean_input(input_text):
+    """Clean user input"""
     return input_text.replace('"', "").replace("'", "")
 
+def setup_sidebar():
+    """Setup sidebar elements"""
+    with st.sidebar:
+        st.title("🎥🍿 Movie Magic")
+        st.subheader("The RAG Recommender")
+        st.markdown("Your Weaviate & AI powered movie recommender. Find the perfect film for any occasion. Just tell us what you're looking for!")
+        st.header("Settings")
 
-# Create two input boxes
-movie_type_raw = st.text_input("What movies are you looking for?")
-movie_type = clean_input(movie_type_raw)
-viewing_occasion_raw = st.text_input("What occasion is the movie for?")
-viewing_occasion = clean_input(viewing_occasion_raw)
-viewing_occasion = f"Suggest one to two movies out of the following list, for a {viewing_occasion}. Give a concise yet fun and positive recommendation."
+        mode = st.radio("Search Mode", options=list(SEARCH_MODES.keys()), index=2)
+        year_range = st.slider("Year range", min_value=1950, max_value=2024, value=(1990, 2024))
+        st.info(SEARCH_MODES[mode][0])
+        st.success("Connected to Weaviate", icon="💚")
 
-prompt = f"Searching for: {movie_type} for {viewing_occasion}"
+    return mode, year_range
 
-# Create a button to submit the inputs
-submit_button = st.button("Search")
+def setup_weaviate_connection(env_vars):
+    """Setup Weaviate connection"""
+    return st.connection(
+        "weaviate",
+        type=WeaviateConnection,
+        url=env_vars["WEAVIATE_URL"],
+        api_key=env_vars["WEAVIATE_API_KEY"],
+        additional_headers={"X-Cohere-Api-Key": env_vars["COHERE_API_KEY"]},
+    )
 
-if submit_button and movie_type and viewing_occasion:
-    # Display user message in chat message container
-    with st.chat_message("user"):
-        st.markdown(movie_type_raw + " for " + viewing_occasion_raw)
-    # Add user message to chat history
-    st.session_state.messages.append({"role": "user", "content": prompt})
+def display_example_prompts():
+    """Display example prompt buttons"""
+    example_prompts = [
+        ("sci-fi adventure", "movie night with friends"),
+        ("romantic comedy", "date night"),
+        ("animated family film", "family viewing"),
+        ("classic thriller", "solo watching"),
+        ("historical drama", "educational evening"),
+        ("indie comedy-drama", "film club discussion"),
+    ]
+
+    example_prompts_help = [
+        "Search for sci-fi adventure movies suitable for a group viewing",
+        "Find romantic comedies perfect for a date night",
+        "Look for animated movies great for family entertainment",
+        "Discover classic thrillers for a solo movie night",
+        "Explore historical dramas for an educational movie experience",
+        "Find indie comedy-dramas ideal for film club discussions",
+    ]
+
+    button_cols = st.columns(3)
+    button_cols_2 = st.columns(3)
+
+    for i, ((movie_type, occasion), help_text) in enumerate(zip(example_prompts, example_prompts_help)):
+        col = button_cols[i] if i < 3 else button_cols_2[i-3]
+        if col.button(f"{movie_type} for a {occasion}", help=help_text):
+            st.session_state.example_movie_type = movie_type
+            st.session_state.example_occasion = occasion
+            return True
+    return False
+
+def perform_search(conn, movie_type, rag_prompt, year_range, mode):
+    """Perform search and display results"""
+    df, _ = conn.hybrid_search(
+        "MovieDemo",
+        query=movie_type,
+        return_properties=["title", "tagline", "poster"],
+        filters=(
+            WeaviateFilter.by_property("release_year").greater_or_equal(year_range[0]) &
+            WeaviateFilter.by_property("release_year").less_or_equal(year_range[1])
+        ),
+        limit=SEARCH_LIMIT,
+        alpha=SEARCH_MODES[mode][1],
+    )
 
     images = []
-    if prompt != "":
-        query = prompt.strip().lower()
+    with st.chat_message("assistant"):
+        st.write("Raw search results. Generating recommendation from these: ...")
+        cols = st.columns(NUM_IMAGES_PER_ROW)
+        for index, row in df.iterrows():
+            col = cols[index % NUM_IMAGES_PER_ROW]
+            if row["poster"]:
+                col.image(base64_to_image(row["poster"]), width=200)
+                images.append(base64_to_image(row["poster"]))
+            else:
+                col.write(f"No Image Available for: {row['title']}")
 
-        df, _ = conn.hybrid_search(
-            "MovieDemo",
-            query=movie_type,
-            return_properties=["title", "tagline", "poster"],
-            filters=(
-                WeaviateFilter.by_property("release_year").greater_or_equal(year_range[0]) &
-                WeaviateFilter.by_property("release_year").less_or_equal(year_range[1])
-            ),
-            limit=SEARCH_LIMIT,
-            alpha=mode_descriptions[mode][1],
-        )
+    st.session_state.messages.append(
+        {"role": "assistant", "content": "Raw search results. Generating recommendation from these: ...", "images": images}
+    )
 
+    _, rag_response = conn.hybrid_search(
+        "MovieDemo",
+        query=movie_type,
+        return_properties=["title", "tagline", "poster"],
+        filters=(
+            WeaviateFilter.by_property("release_year").greater_or_equal(year_range[0]) &
+            WeaviateFilter.by_property("release_year").less_or_equal(year_range[1])
+        ),
+        limit=SEARCH_LIMIT,
+        alpha=SEARCH_MODES[mode][1],
+        rag_prompt=rag_prompt,
+        rag_properties=["title", "tagline"]
+    )
+
+    with st.chat_message("assistant"):
+        message_placeholder = st.empty()
+        full_response = ""
+        for chunk in rag_response.split():
+            full_response += chunk + " "
+            time.sleep(0.02)
+            message_placeholder.markdown(full_response + "▌")
+        message_placeholder.markdown(full_response)
+
+    st.session_state.messages.append(
+        {"role": "assistant", "content": "Recommendation from these search results: " + full_response}
+    )
+
+def main():
+    st.title("🎥🍿 Movie Magic")
+
+    env_vars = get_env_vars(ENV_VARS)
+    conn = setup_weaviate_connection(env_vars)
+    mode, year_range = setup_sidebar()
+
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+        st.session_state.greetings = False
+
+    display_chat_messages()
+
+    if not st.session_state.greetings:
         with st.chat_message("assistant"):
-            response = "Raw search results. Generating recommendation from these: ..."
-            for index, row in df.iterrows():
-                # Create a new row of columns for every NUM_IMAGES_PER_ROW images
-                if index % NUM_IMAGES_PER_ROW == 0:
-                    cols = st.columns(NUM_IMAGES_PER_ROW)
+            intro = "👋 Welcome to Movie Magic! I'm your AI movie recommender. Tell me what kind of film you're in the mood for and the occasion, and I'll suggest some great options."
+            st.markdown(intro)
+            st.session_state.messages.append({"role": "assistant", "content": intro})
+            st.session_state.greetings = True
 
-                if row["poster"]:
-                    # Display image in the column
-                    cols[index % NUM_IMAGES_PER_ROW].image(base64_to_image(row["poster"]), width=200)
-                    images.append(base64_to_image(row["poster"]))
-                else:
-                    cols[index % NUM_IMAGES_PER_ROW].write(
-                        f"No Image Available for: {row['title']}"
-                    )
-            st.session_state.messages.append(
-                {"role": "assistant", "content": response, "images": images}
-            )
+    if "example_movie_type" not in st.session_state:
+        st.session_state.example_movie_type = ""
+    if "example_occasion" not in st.session_state:
+        st.session_state.example_occasion = ""
 
-        _, rag_response = conn.hybrid_search(
-            "MovieDemo",
-            query=movie_type,
-            return_properties=["title", "tagline", "poster"],
-            filters=(
-                WeaviateFilter.by_property("release_year").greater_or_equal(year_range[0]) &
-                WeaviateFilter.by_property("release_year").less_or_equal(year_range[1])
-            ),
-            limit=SEARCH_LIMIT,
-            alpha=mode_descriptions[mode][1],
-            rag_prompt=viewing_occasion,
-            rag_properties=["title", "tagline"]
-        )
+    example_selected = display_example_prompts()
 
-        with st.chat_message("assistant"):
-            rec_response = "Recommendation from these search results: ..."
-            for index, row in df.iterrows():
-                if index == 0:
-                    message_placeholder = st.empty()
-                    full_response = ""
-                    for chunk in rag_response.split():
-                        full_response += chunk + " "
-                        time.sleep(0.02)
-                        # Add a blinking cursor to simulate typing
-                        message_placeholder.markdown(full_response + "▌")
-                    message_placeholder.markdown(full_response)
-                    rec_response += full_response + " "
+    movie_type = clean_input(st.text_input("What movies are you looking for?", value=st.session_state.example_movie_type))
+    viewing_occasion = clean_input(st.text_input("What occasion is the movie for?", value=st.session_state.example_occasion))
 
-            st.session_state.messages.append(
-                {"role": "assistant", "content": rec_response}
-            )
-            st.rerun()
+    if st.button("Search") and movie_type and viewing_occasion:
+        rag_prompt = f"Suggest one to two movies out of the following list, for a {viewing_occasion}. Give a concise yet fun and positive recommendation."
+        prompt = f"Searching for: {movie_type} for {viewing_occasion}"
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        st.session_state.messages.append({"role": "user", "content": prompt})
+
+        perform_search(conn, movie_type, rag_prompt, year_range, mode)
+        st.rerun()
+
+    if example_selected:
+        st.rerun()
+
+if __name__ == "__main__":
+    main()
