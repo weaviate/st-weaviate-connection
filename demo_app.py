@@ -13,9 +13,9 @@ SEARCH_LIMIT = 10
 
 # Search Mode descriptions
 SEARCH_MODES = {
-    "Keyword": ("Keyword search (BM25, in case of Weaviate) ranks documents based on their relevance to a given query, factoring in both the frequency of keywords and the length of the document.", 0),
-    "Semantic": ("Semantic (vector) search ranks results based on their similarity to your search query. Instead of just matching keywords, it understands the context and meaning behind your search, offering more relevant and nuanced results.", 1),
-    "Hybrid": ("Hybrid search combines vector and BM25 searches to offer best-of-both-worlds search results. It leverages the precision of BM25's keyword-based ranking with vector search's ability to understand context and semantic meaning. Providing results that are both directly relevant to the query and contextually related.", 0.7),
+    "Keyword": ("Keyword search (BM25) ranks documents based on the relative frequencies of search terms.", 0),
+    "Semantic": ("Semantic (vector) search ranks results based on their similarity to your search query.", 1),
+    "Hybrid": ("Hybrid search combines vector and BM25 searches to offer best-of-both-worlds search results.", 0.7),
 }
 
 # Functions
