@@ -92,6 +92,9 @@ def display_example_prompts():
         "Find indie comedy-dramas ideal for film club discussions",
     ]
 
+    st.markdown("---")
+    st.write("Select an example prompt or enter your own, then **click `Search`** to get recommendations.")
+
     button_cols = st.columns(3)
     button_cols_2 = st.columns(3)
 
@@ -187,8 +190,17 @@ def main():
 
     example_selected = display_example_prompts()
 
-    movie_type = clean_input(st.text_input("What movies are you looking for?", value=st.session_state.example_movie_type))
-    viewing_occasion = clean_input(st.text_input("What occasion is the movie for?", value=st.session_state.example_occasion))
+    movie_type = clean_input(st.text_input(
+        "What movies are you looking for?",
+        value=st.session_state.example_movie_type,
+        placeholder="E.g., sci-fi adventure, romantic comedy"
+    ))
+
+    viewing_occasion = clean_input(st.text_input(
+        "What occasion is the movie for?",
+        value=st.session_state.example_occasion,
+        placeholder="E.g., movie night with friends, date night"
+    ))
 
     if st.button("Search") and movie_type and viewing_occasion:
         rag_prompt = f"Suggest one to two movies out of the following list, for a {viewing_occasion}. Give a concise yet fun and positive recommendation."
