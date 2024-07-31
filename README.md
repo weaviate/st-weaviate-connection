@@ -62,12 +62,12 @@ Where `weaviate_url` and `weaviate_apikey` are the URL and API key of your Weavi
 
 ### Queries
 
-You can use the `hybrid_search` method or `graphql_query` method to query your Weaviate instance.
+You can use the `query` method or `graphql_query` method to query your Weaviate instance.
 
 To perform a hybrid search, use the following method:
 
 ```python
-df = conn.hybrid_search(
+df = conn.query(
     collection_name="<COLLECTION NAME>",
     query="<QUERY STRING>",
 )
@@ -89,9 +89,9 @@ df = conn.graphql_query(
 
 Both methods return a Pandas DataFrame.
 
-#### `hybrid_search` method
+#### `query` method
 
-The `hybrid_search` method is a convenience method that was created for the Weaviate connection.
+The `query` method is a convenience method that was created for the Weaviate connection.
 
 It performs a hybrid search on the Weaviate instance. The method requires `collection_name` and `query` as arguments.
 
@@ -100,7 +100,7 @@ It performs a hybrid search on the Weaviate instance. The method requires `colle
 - `query` : str
     - The query to search for.
 
-It also accepts `limit`, `filters`, `target_vectors`, `query_properties`, and `alpha` as optional arguments.
+It also accepts `limit`, `filters`, `target_vectors`, `query_properties`, and `alpha` as optional arguments. Refer to the function docstring for additional information on these arguments.
 
 ## Advanced Usage
 
