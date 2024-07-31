@@ -106,8 +106,6 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
         query_properties: Optional[List[str]] = None,
         return_properties: Optional[List[str]] = None,
         alpha: float = 0.7,
-        rag_prompt: Optional[str] = None,
-        rag_properties: Optional[List[str]] = None,
     ) -> pd.DataFrame:
         """
         Query a Weaviate collection using a simplified hybrid query.
@@ -137,38 +135,22 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
         alpha: float, optional
             The weight of the semantic search part of the query. (alpha=1 is a semantic search, alpha=0 is a keyword search).
             If not provided, the Weaviate server default value is used.
-        rag_prompt: str, optional
-            The prompt to use for the RAG model. If not provided, the query is treated as a regular hybrid search.
         """
+        self._connect()
 
         collection = self._client.collections.get(name=collection_name)
 
-        if rag_prompt is None:
-            response = collection.query.hybrid(
-                query=query,
-                limit=limit,
-                filters=filters,
-                target_vector=target_vectors,
-                query_properties=query_properties,
-                return_properties=return_properties,
-                alpha=alpha,
-            )
+        response = collection.query.hybrid(
+            query=query,
+            limit=limit,
+            filters=filters,
+            target_vector=target_vectors,
+            query_properties=query_properties,
+            return_properties=return_properties,
+            alpha=alpha,
+        )
 
-            return (weaviate_response_objects_to_df(response.objects), None)
-        else:
-            response = collection.generate.hybrid(
-                query=query,
-                limit=limit,
-                filters=filters,
-                target_vector=target_vectors,
-                query_properties=query_properties,
-                return_properties=return_properties,
-                alpha=alpha,
-                grouped_task=rag_prompt,
-                grouped_properties=rag_properties
-            )
-
-            return (weaviate_response_objects_to_df(response.objects), response.generated)
+        return weaviate_response_objects_to_df(response.objects)
 
     def graphql_query(self, query: str, cache_ttl: int = 3600) -> pd.DataFrame:
         """

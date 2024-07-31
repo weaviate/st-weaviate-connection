@@ -4,6 +4,7 @@ import sys
 import os
 import base64
 from st_weaviate_connection import WeaviateConnection, WeaviateFilter
+from weaviate.classes.query import Filter
 
 # Constants
 ENV_VARS = ["WEAVIATE_URL", "WEAVIATE_API_KEY", "COHERE_API_KEY"]
@@ -108,7 +109,7 @@ def display_example_prompts():
 
 def perform_search(conn, movie_type, rag_prompt, year_range, mode):
     """Perform search and display results"""
-    df, _ = conn.query(
+    df = conn.query(
         "MovieDemo",
         query=movie_type,
         return_properties=["title", "tagline", "poster"],
@@ -122,7 +123,7 @@ def perform_search(conn, movie_type, rag_prompt, year_range, mode):
 
     images = []
     with st.chat_message("assistant"):
-        st.write("Raw search results. Generating recommendation from these: ...")
+        st.write("Raw search results.")
         cols = st.columns(NUM_IMAGES_PER_ROW)
         for index, row in df.iterrows():
             col = cols[index % NUM_IMAGES_PER_ROW]
@@ -131,33 +132,36 @@ def perform_search(conn, movie_type, rag_prompt, year_range, mode):
                 images.append(base64_to_image(row["poster"]))
             else:
                 col.write(f"No Image Available for: {row['title']}")
+        st.write("Now generating recommendation from these: ...")
 
     st.session_state.messages.append(
         {"role": "assistant", "content": "Raw search results. Generating recommendation from these: ...", "images": images}
     )
 
-    _, rag_response = conn.query(
-        "MovieDemo",
-        query=movie_type,
-        return_properties=["title", "tagline", "poster"],
-        filters=(
-            WeaviateFilter.by_property("release_year").greater_or_equal(year_range[0]) &
-            WeaviateFilter.by_property("release_year").less_or_equal(year_range[1])
-        ),
-        limit=SEARCH_LIMIT,
-        alpha=SEARCH_MODES[mode][1],
-        rag_prompt=rag_prompt,
-        rag_properties=["title", "tagline"]
-    )
+    with conn.client() as client:
+        collection = client.collections.get("MovieDemo")
+        response = collection.generate.hybrid(
+            query=movie_type,
+            filters=(
+                Filter.by_property("release_year").greater_or_equal(year_range[0]) &
+                Filter.by_property("release_year").less_or_equal(year_range[1])
+            ),
+            limit=SEARCH_LIMIT,
+            alpha=SEARCH_MODES[mode][1],
+            grouped_task=rag_prompt,
+            grouped_properties=["title", "tagline"],
+        )
 
-    with st.chat_message("assistant"):
-        message_placeholder = st.empty()
-        full_response = ""
-        for chunk in rag_response.split():
-            full_response += chunk + " "
-            time.sleep(0.02)
-            message_placeholder.markdown(full_response + "▌")
-        message_placeholder.markdown(full_response)
+        rag_response = response.generated
+
+        with st.chat_message("assistant"):
+            message_placeholder = st.empty()
+            full_response = ""
+            for chunk in rag_response.split():
+                full_response += chunk + " "
+                time.sleep(0.02)
+                message_placeholder.markdown(full_response + "▌")
+            message_placeholder.markdown(full_response)
 
     st.session_state.messages.append(
         {"role": "assistant", "content": "Recommendation from these search results: " + full_response}
