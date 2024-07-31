@@ -122,50 +122,56 @@ def perform_search(conn, movie_type, rag_prompt, year_range, mode):
     )
 
     images = []
-    with st.chat_message("assistant"):
-        st.write("Raw search results.")
-        cols = st.columns(NUM_IMAGES_PER_ROW)
-        for index, row in df.iterrows():
-            col = cols[index % NUM_IMAGES_PER_ROW]
-            if row["poster"]:
-                col.image(base64_to_image(row["poster"]), width=200)
-                images.append(base64_to_image(row["poster"]))
-            else:
-                col.write(f"No Image Available for: {row['title']}")
-        st.write("Now generating recommendation from these: ...")
+    if df is None or df.empty:
+        with st.chat_message("assistant"):
+            st.write(f"No movies found matching {movie_type} and using {mode}. Please try again.")
+        st.session_state.messages.append({"role": "assistant", "content": "No movies found. Please try again."})
+        return
+    else:
+        with st.chat_message("assistant"):
+            st.write("Raw search results.")
+            cols = st.columns(NUM_IMAGES_PER_ROW)
+            for index, row in df.iterrows():
+                col = cols[index % NUM_IMAGES_PER_ROW]
+                if row["poster"]:
+                    col.image(base64_to_image(row["poster"]), width=200)
+                    images.append(base64_to_image(row["poster"]))
+                else:
+                    col.write(f"No Image Available for: {row['title']}")
+            st.write("Now generating recommendation from these: ...")
 
-    st.session_state.messages.append(
-        {"role": "assistant", "content": "Raw search results. Generating recommendation from these: ...", "images": images}
-    )
-
-    with conn.client() as client:
-        collection = client.collections.get("MovieDemo")
-        response = collection.generate.hybrid(
-            query=movie_type,
-            filters=(
-                Filter.by_property("release_year").greater_or_equal(year_range[0]) &
-                Filter.by_property("release_year").less_or_equal(year_range[1])
-            ),
-            limit=SEARCH_LIMIT,
-            alpha=SEARCH_MODES[mode][1],
-            grouped_task=rag_prompt,
-            grouped_properties=["title", "tagline"],
+        st.session_state.messages.append(
+            {"role": "assistant", "content": "Raw search results. Generating recommendation from these: ...", "images": images}
         )
 
-        rag_response = response.generated
+        with conn.client() as client:
+            collection = client.collections.get("MovieDemo")
+            response = collection.generate.hybrid(
+                query=movie_type,
+                filters=(
+                    Filter.by_property("release_year").greater_or_equal(year_range[0]) &
+                    Filter.by_property("release_year").less_or_equal(year_range[1])
+                ),
+                limit=SEARCH_LIMIT,
+                alpha=SEARCH_MODES[mode][1],
+                grouped_task=rag_prompt,
+                grouped_properties=["title", "tagline"],
+            )
 
-        with st.chat_message("assistant"):
-            message_placeholder = st.empty()
-            full_response = ""
-            for chunk in rag_response.split():
-                full_response += chunk + " "
-                time.sleep(0.02)
-                message_placeholder.markdown(full_response + "▌")
-            message_placeholder.markdown(full_response)
+            rag_response = response.generated
 
-    st.session_state.messages.append(
-        {"role": "assistant", "content": "Recommendation from these search results: " + full_response}
-    )
+            with st.chat_message("assistant"):
+                message_placeholder = st.empty()
+                full_response = ""
+                for chunk in rag_response.split():
+                    full_response += chunk + " "
+                    time.sleep(0.02)
+                    message_placeholder.markdown(full_response + "▌")
+                message_placeholder.markdown(full_response)
+
+        st.session_state.messages.append(
+            {"role": "assistant", "content": "Recommendation from these search results: " + full_response}
+        )
 
 def main():
     st.title("🎥🍿 Movie Magic")
