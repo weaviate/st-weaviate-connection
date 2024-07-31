@@ -131,6 +131,8 @@ with conn.client() as client:
 
 This way, the client will also automatically close the connection after the block is executed, ensuring that there are no resource leaks.
 
+See the [Weaviate Python client documentation](https://weaviate.io/developers/weaviate/client-libraries/python), and the [Weaviate documentation](https://weaviate.io/developers/weaviate/) for more information on the available operations.
+
 ## Example notebook
 
 The project includes a demonstration notebook to showcase basic functionalities of the connector (see here [demo notebook](./notebooks/01_demo.ipynb))
@@ -149,9 +151,21 @@ All connector functionality can be found in the [`connection.py`](./st_weaviate_
 
 ## Demo app(s)
 
+### Movie Magic
+
+*🎬🍿 Movie Magic* is a simple, but fun movie recommendation app built with Streamlit and Weaviate, using `st-weaviate-connection` Weaviate connector.
+
+The app allows users to search for movies based on search terms using hybrid, semantic, and keyword search options. Then, the app provides recommendations based on the viewing occasion.
+
+Run the app using the following command:
+
+```bash
+streamlit run demo_app.py
+```
+
 ### Magic Chat
 
-Magic Chat searches through Magic The Gathering cards with various search options, such as keyword, semantic and hybrid, and performs retrieval-augmented. The live demo is accessible through [Streamlit Community Cloud](https://weaviate-magic-chat.streamlit.app/).
+*🔮 Magic Chat* searches through Magic The Gathering cards with various search options, such as keyword, semantic and hybrid, and performs retrieval-augmented. The live demo is accessible through [Streamlit Community Cloud](https://weaviate-magic-chat.streamlit.app/).
 
 It was built using a previous version (0.0.1) of the Weaviate connector, and the code can be found in the [this repository](https://github.com/thomashacker/weaviate-magic-chat-demo/tree/main).
 
