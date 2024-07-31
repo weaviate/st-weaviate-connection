@@ -2,7 +2,7 @@
 
 [![Weaviate](https://img.shields.io/static/v1?label=Built%20with&message=Weaviate&color=green&style=flat-square)](https://weaviate.io/) [![Weaviate](https://img.shields.io/static/v1?label=%20made%20with%20%E2%9D%A4%20for&message=Streamlit&color=red&style=flat-square)](https://streamlit.io/)
 
-This project provides a Streamlit connector for the open-source vector database, [Weaviate](https://weaviate.io/).
+This project provides a Streamlit connection for the open-source vector database, [Weaviate](https://weaviate.io/).
 
 ## Overview
 
@@ -91,7 +91,7 @@ Both methods return a Pandas DataFrame.
 
 #### `hybrid_search` method
 
-The `hybrid_search` method is a convenience method that was created for the Weaviate connector.
+The `hybrid_search` method is a convenience method that was created for the Weaviate connection.
 
 It performs a hybrid search on the Weaviate instance. The method requires `collection_name` and `query` as arguments.
 
@@ -104,7 +104,7 @@ It also accepts `limit`, `filters`, `target_vectors`, `query_properties`, and `a
 
 ## Advanced Usage
 
-The Weaviate connector uses the Weaviate Python client under-the-hood to interact with the Weaviate instance.
+The Weaviate connection uses the Weaviate Python client under-the-hood to interact with the Weaviate instance.
 
 Accordingly, you can use the Weaviate client object directly to perform advanced operations.
 
@@ -135,7 +135,7 @@ See the [Weaviate Python client documentation](https://weaviate.io/developers/we
 
 ## Example notebook
 
-The project includes a demonstration notebook to showcase basic functionalities of the connector (see here [demo notebook](./notebooks/01_demo.ipynb))
+The project includes a demonstration notebook to showcase basic functionalities of the connection (see here [demo notebook](./notebooks/01_demo.ipynb))
 
 Before you run the Jupyter notebook make sure that you have set the following environment variables
 
@@ -147,13 +147,13 @@ WEAVIATE_API_KEY=<YOUR WEAVIATE CLOUD INSTANCE API KEY>
 
 ## 📚 Documentation
 
-All connector functionality can be found in the [`connection.py`](./st_weaviate_connection/connection.py) python file. Documentation about `st.connection` can be found [here](https://docs.streamlit.io/library/api-reference/connections/st.experimental_connection).
+All connection functionality can be found in the [`connection.py`](./st_weaviate_connection/connection.py) python file. Documentation about `st.connection` can be found [here](https://docs.streamlit.io/library/api-reference/connections/st.experimental_connection).
 
 ## Demo app(s)
 
 ### Movie Magic
 
-*🎬🍿 Movie Magic* is a simple, but fun movie recommendation app built with Streamlit and Weaviate, using `st-weaviate-connection` Weaviate connector.
+*🎬🍿 Movie Magic* is a simple, but fun movie recommendation app built with Streamlit and Weaviate, using `st-weaviate-connection` Weaviate connection.
 
 The app allows users to search for movies based on search terms using hybrid, semantic, and keyword search options. Then, the app provides recommendations based on the viewing occasion.
 
@@ -167,7 +167,7 @@ streamlit run demo_app.py
 
 *🔮 Magic Chat* searches through Magic The Gathering cards with various search options, such as keyword, semantic and hybrid, and performs retrieval-augmented. The live demo is accessible through [Streamlit Community Cloud](https://weaviate-magic-chat.streamlit.app/).
 
-It was built using a previous version (0.0.1) of the Weaviate connector, and the code can be found in the [this repository](https://github.com/thomashacker/weaviate-magic-chat-demo/tree/main).
+It was built using a previous version (0.0.1) of the Weaviate connection, and the code can be found in the [this repository](https://github.com/thomashacker/weaviate-magic-chat-demo/tree/main).
 
 ## 💖 Open Source Contribution
 
