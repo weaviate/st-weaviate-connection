@@ -96,7 +96,7 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
         df = pd.DataFrame(data)
         return df
 
-    def hybrid_search(
+    def query(
         self,
         collection_name: str,
         query: str,

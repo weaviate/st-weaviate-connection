@@ -108,7 +108,7 @@ def display_example_prompts():
 
 def perform_search(conn, movie_type, rag_prompt, year_range, mode):
     """Perform search and display results"""
-    df, _ = conn.hybrid_search(
+    df, _ = conn.query(
         "MovieDemo",
         query=movie_type,
         return_properties=["title", "tagline", "poster"],
@@ -136,7 +136,7 @@ def perform_search(conn, movie_type, rag_prompt, year_range, mode):
         {"role": "assistant", "content": "Raw search results. Generating recommendation from these: ...", "images": images}
     )
 
-    _, rag_response = conn.hybrid_search(
+    _, rag_response = conn.query(
         "MovieDemo",
         query=movie_type,
         return_properties=["title", "tagline", "poster"],
