@@ -1,5 +1,8 @@
 import pytest
 import requests
+from weaviate import WeaviateClient
+
+TEST_COLLECTION_NAME = "TVShow"
 
 
 def is_ready(url):
@@ -25,11 +28,10 @@ def weaviate_service(docker_ip, docker_services):
 
 @pytest.fixture(scope="session")
 def weaviate_client(weaviate_service):
-    from weaviate.client import Client
+    import weaviate
 
-    client = Client(weaviate_service)
+    client = weaviate.connect_to_local()
     yield client
-    client.schema.delete_all()
 
 
 @pytest.fixture(scope="session")
@@ -69,10 +71,22 @@ def documents():
 
 
 @pytest.fixture(scope="session")
-def weaviate_db(weaviate_client, documents):
-    with weaviate_client.batch as batch:
+def weaviate_db(weaviate_client: WeaviateClient, documents):
+    from weaviate.classes.config import Configure, Property, DataType
+
+    weaviate_client.collections.delete(TEST_COLLECTION_NAME)
+    c = weaviate_client.collections.create(
+        name=TEST_COLLECTION_NAME,
+        vectorizer_config=Configure.Vectorizer.none(),
+        properties=[
+            Property(name="title", data_type=DataType.TEXT),
+            Property(name="creator", data_type=DataType.TEXT),
+            Property(name="synopsis", data_type=DataType.TEXT),
+        ]
+    )
+    with c.batch.fixed_size(100) as batch:
         for document in documents:
             embedding = document.pop("embedding")
-            batch.add_data_object(
-                data_object=document, vector=embedding, class_name="TVShow"
+            batch.add_object(
+                properties=document, vector=embedding
             )
