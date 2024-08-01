@@ -102,6 +102,11 @@ It performs a hybrid search on the Weaviate instance. The method requires `colle
 
 It also accepts `limit`, `filters`, `target_vectors`, `query_properties`, and `alpha` as optional arguments. Refer to the function docstring for additional information on these arguments.
 
+##### Notes
+
+- The `query` method is a convenience method and is not a direct Weaviate operation. It uses the Weaviate Python client under-the-hood to perform the operation.
+- The `query` method does not support caching via the `cache_ttl` parameter. If you need caching, use the `graphql_query` method.
+
 ## Advanced Usage
 
 The Weaviate connection uses the Weaviate Python client under-the-hood to interact with the Weaviate instance.

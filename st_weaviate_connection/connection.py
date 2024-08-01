@@ -110,6 +110,8 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
         """
         Query a Weaviate collection using a simplified hybrid query.
 
+        Note that this method does not support caching via the `cache_ttl` parameter. If you need caching, use the `graphql_query` method.
+
         Parameters
         ----------
         collection_name : str
