@@ -93,7 +93,7 @@ class WeaviateConnection(BaseConnection["WeaviateClient"]):
     def _gql_to_dataframe(self, results: _RawGQLReturn) -> pd.DataFrame:
         collection_name = list(results.get.keys())[0]
         data = results.get[collection_name]
-        df = pd.DataFrame(data)
+        df = pd.json_normalize(data)
         return df
 
     def query(

@@ -11,7 +11,7 @@ def weaviate_connection(weaviate_db):
     yield WeaviateConnection("test_weaviate_conn", url="localhost")
 
 
-def test_query(weaviate_connection):
+def test_simple_query(weaviate_connection):
     df = weaviate_connection.query(
         query=None,
         collection_name=TEST_COLLECTION_NAME,
@@ -91,7 +91,8 @@ def test_query_with_additional_properties(weaviate_connection):
     assert set(df["title"]) == {"Rugrats"}
 
 
-def test_query_builder(weaviate_connection):
+def test_query(weaviate_connection):
+    from weaviate.classes.query import MetadataQuery
     animaniacs_query_vector = [0.1, 0.2, 0.3, 0.4, 0.5]
 
     client = weaviate_connection.client()
@@ -99,11 +100,11 @@ def test_query_builder(weaviate_connection):
 
     response = c.query.near_vector(
         near_vector=animaniacs_query_vector,
-        limit=3
+        limit=3,
     )
 
     df = weaviate_response_objects_to_df(response.objects)
 
     assert df.shape == (3, 3)
-    assert set(df.columns) == {"title", "creator", "_additional.distance"}
+    assert set(df.columns) == {"title", "synopsis", "creator"}
     assert df.iloc[0]["title"] == "Animaniacs"
